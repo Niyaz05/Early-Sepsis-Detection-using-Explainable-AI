@@ -1,0 +1,30 @@
+# Python virtual environments
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Mac
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# Large datasets
+data/raw/
+data/processed/
+
+# Model checkpoints
+*.pt
+*.pth
+*.h5
+*.pkl
+
+.ipython/
+.jupyter/
+.mplconfig/
