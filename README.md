@@ -135,3 +135,21 @@ Evaluated on the held-out test cohort (2,109 patients, 80,983 hourly observation
 5. **Fairness and Health Equity:**
    Performance audits revealed equitable sensitivity across gender groups (Equal Opportunity Difference = 0.025) and comparable recall across adult and elderly cohorts (<40: 31.8%, 40-65: 28.8%, 65+: 28.7%).
 
+---
+
+## 6. Future Work & Promising Directions
+
+1. **Full-Cohort Deep Learning Training with GPU & Hyperparameter Tuning:**
+   Currently, the LSTM, TCN, and Transformer models were trained on a 4,000-patient subset (`dl_train`) on CPU and stopped after 1–4 epochs. Training on all 9,839 training patients with GPU acceleration, learning-rate warmup/cosine decay, and stronger regularization (weight decay, label smoothing) would allow sequence models to generalize better without overfitting after Epoch 1.
+2. **Domain-Specific Clinical Scores & Hybrid Feature Fusion:**
+   Adding established bedside scores (SIRS, qSOFA, SOFA components, shock index = `HR / SBP`, and BUN/Creatinine ratio) and feeding the 6h rolling/delta features into the sequence models (or building a **hybrid XGBoost + Transformer ensemble**) could combine the precision of gradient-boosted trees with long-range temporal attention.
+3. **Focal Loss & Post-Hoc Probability Calibration:**
+   High `pos_weight` (`8.0` for deep models, `45.1` for XGBoost) improves sensitivity but inflates predicted probabilities (Brier scores `0.143–0.210`). Exploring **Focal Loss** for hard-example mining and applying **Isotonic Regression or Platt Scaling** on the validation set would yield well-calibrated probabilities for bedside risk triage.
+4. **Fairness-Aware Threshold Calibration:**
+   Our fairness audit showed lower PR-AUC and higher false-positive rates for older adults (`65+`) compared to `<40`. Evaluating **subgroup-specific decision thresholds** (or equalized-odds post-processing) on the validation set can ensure equitable sensitivity and alarm burden across age and gender groups.
+5. **Clinician-Facing Real-Time UI & Temporal Alerting Logic:**
+   Build an interactive bedside dashboard (the next phase of this project) displaying live hourly risk curves, Monte Carlo Dropout confidence bands, top SHAP risk drivers, and **persistent-alert logic** (e.g., requiring 2 consecutive hours above threshold or a cooldown window) to further reduce ICU alarm fatigue.
+6. **External Validation & Multi-Center Generalization:**
+   Validate the frozen pipeline on external ICU cohorts (e.g., MIMIC-IV or eICU) to test robustness against hospital-specific lab measurement frequencies and EHR coding shifts, and apply the 2D-output wrapper fix (`unsqueeze(-1)`) if `shap.GradientExplainer` is needed alongside permutation importance for TCN/Transformer.
+
+
